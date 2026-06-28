@@ -1,0 +1,4 @@
+# Allow all crawlers (知名大厂爬虫全部放行)
+# 任何遵循 robots.txt 协议的爬虫均可抓取本站内容
+User-agent: *
+Disallow:

@@ -1,0 +1,24 @@
+# 随身学（English Commute）
+> 一款面向通勤场景的英语单词学习 App。音频沉浸式学习——无需看屏幕，通过听单词发音、释义和例句完成学习。
+
+## 一句话定位
+随身学 是一款面向通勤场景的英语单词学习 App，主打音频沉浸式学习 + AI 自适应反馈 + 离线优先。通勤路上、开车途中、做家务时——戴上耳机就能学英语。
+
+## 核心功能
+- **音频沉浸学习**：单词朗读→释义→例句自动播完，滑动标记，4秒无操作自动跳过
+- **AI 自适应**：DeepSeek 驱动，根据学习数据自动推荐语速、调整复习节奏
+- **SM-2 间隔重复**：基于 SuperMemo 算法的科学复习安排
+- **离线优先**：本地 SQLite + Supabase 云端同步，无网络也能正常学习
+- **学习统计**：Streak 打卡、热力图、学习洞察、AI 学习建议
+- **自定义词库**：内置 CET-4 核心词汇，支持 AI 按主题生成自定义词库
+
+## 技术栈
+Flutter / Dart / Riverpod / Drift (SQLite) / Supabase / DeepSeek AI / flutter_tts
+
+## 相关链接
+- 落地页: https://english-commute.vercel.app
+- GitHub 仓库: https://github.com/AiMmj1991/english-commute
+- 详细文档: /llms-full.txt
+
+## 关于
+随身学由独立开发者莫劲开发，旨在利用通勤碎片时间解决英语单词学习需求。

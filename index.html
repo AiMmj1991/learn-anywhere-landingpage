@@ -1,0 +1,845 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="随身学（English Commute）是一款面向职场通勤人士的英语学习App。无需看屏幕，通过听单词发音、释义和例句来学习英语。AI自适应 + SM-2间隔重复，通勤路上轻松学英语。" />
+  <meta name="keywords" content="英语学习,通勤学英语,英语听力,AI学英语,背单词,English Commute,随身学" />
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="随身学（English Commute）— 学英语，听出来" />
+  <meta property="og:description" content="通勤路上、休闲时刻，用听的就能学英语。AI自适应+SM-2科学复习，你的随身英语教练。" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://english-commute.vercel.app" />
+  <meta property="og:locale" content="zh_CN" />
+  <!-- og:image — TODO: 替换为 App 截图或品牌图 -->
+  <meta property="og:image" content="https://english-commute.vercel.app/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+
+  <!-- Favicon (inline SVG) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎧</text></svg>" />
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎧</text></svg>" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="随身学（English Commute）— 学英语，听出来" />
+  <meta name="twitter:description" content="通勤路上、休闲时刻，用听的就能学英语。" />
+
+  <!-- JSON-LD: SoftwareApplication schema -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "随身学 English Commute",
+    "applicationCategory": "EducationalApplication",
+    "operatingSystem": "Android, iOS",
+    "description": "一款面向通勤场景的英语单词学习App。核心特点是音频沉浸式学习——无需看屏幕，通过听单词发音、释义和例句来学习英语。支持AI自适应调速、SM-2间隔重复算法、离线学习和云端同步。",
+    "slogan": "学英语，听出来",
+    "author": {
+      "@type": "Organization",
+      "name": "随身学团队"
+    },
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "CNY"
+    },
+    "featureList": [
+      "音频沉浸式学习",
+      "AI自适应调整语速与复习节奏",
+      "SM-2间隔重复算法",
+      "离线优先学习",
+      "学习统计与打卡",
+      "AI生词分析与例句生成"
+    ]
+  }
+  </script>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Modal styles -->
+  <style>
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 9999;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .modal-overlay.active {
+      opacity: 1; pointer-events: all;
+    }
+    .modal-box {
+      background: white; border-radius: 24px;
+      padding: 48px 40px 40px;
+      max-width: 420px; width: 90%;
+      text-align: center;
+      transform: translateY(24px) scale(0.96);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.2);
+    }
+    .modal-overlay.active .modal-box {
+      transform: translateY(0) scale(1);
+    }
+    .modal-countdown {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #EFF6FF; color: #2563EB;
+      font-size: 0.8em; font-weight: 600;
+      padding: 6px 14px; border-radius: 20px;
+      margin-bottom: 20px;
+    }
+    .modal-date {
+      font-size: 2.8em; font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #1E293B; line-height: 1.1;
+    }
+    .modal-date em {
+      font-style: normal;
+      background: linear-gradient(135deg, #2563EB, #60A5FA);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+  </style>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#EFF6FF',
+              100: '#DBEAFE',
+              200: '#BFDBFE',
+              300: '#93C5FD',
+              400: '#60A5FA',
+              500: '#3B82F6',
+              600: '#2563EB',
+              700: '#1D4ED8',
+              800: '#1E40AF',
+              900: '#1E3A8A',
+            },
+            accent: {
+              green: '#22C55E',
+              yellow: '#EAB308',
+            }
+          },
+          fontFamily: {
+            sans: ['"PingFang SC"', '"Noto Sans SC"', '"Microsoft YaHei"', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Analytics 4 — TODO: 替换 G-XXXXXXXXXX 为真实 GA4 测量 ID -->
+  <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script> -->
+
+  <title>随身学（English Commute）— 学英语，听出来 | 通勤英语学习App</title>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    body { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+    /* Feature card hover effect */
+    .feature-card {
+      transition: all 0.3s ease;
+    }
+    .feature-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px -8px rgba(37, 99, 235, 0.12);
+    }
+
+    /* Scenario card */
+    .scenario-card {
+      transition: all 0.3s ease;
+    }
+    .scenario-card:hover {
+      transform: translateY(-2px);
+    }
+
+    /* Smooth fade-in animation */
+    .animate-fade-up {
+      opacity: 0;
+      transform: translateY(24px);
+      animation: fadeUp 0.6s ease forwards;
+    }
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .delay-100 { animation-delay: 0.1s; }
+    .delay-200 { animation-delay: 0.2s; }
+    .delay-300 { animation-delay: 0.3s; }
+    .delay-400 { animation-delay: 0.4s; }
+
+    /* Phone mockup placeholder */
+    .mockup-phone {
+      width: 280px;
+      height: 560px;
+      background: linear-gradient(180deg, #EFF6FF 0%, #DBEAFE 100%);
+      border-radius: 40px;
+      border: 4px solid #1E293B;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(30, 41, 59, 0.15);
+    }
+    .mockup-phone::before {
+      content: '';
+      position: absolute;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 6px;
+      background: #1E293B;
+      border-radius: 3px;
+    }
+    .mockup-phone-content {
+      position: absolute;
+      top: 32px;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      background: white;
+      border-radius: 28px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    /* Phone mockup wave decoration */
+    .mockup-wave {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 40%;
+      background: linear-gradient(180deg, transparent 0%, rgba(37, 99, 235, 0.06) 100%);
+      border-radius: 0 0 28px 28px;
+    }
+
+    /* Download button hover */
+    .download-btn {
+      transition: all 0.2s ease;
+    }
+    .download-btn:hover {
+      transform: scale(1.03);
+    }
+
+    /* FAQ accordion */
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary {
+      list-style: none;
+      cursor: pointer;
+    }
+    .faq-item[open] summary .faq-arrow {
+      transform: rotate(180deg);
+    }
+    .faq-arrow {
+      transition: transform 0.3s ease;
+    }
+  </style>
+</head>
+<body class="bg-[#F8FAFC] text-[#1E293B] font-sans antialiased">
+
+  <!-- ======== NAV ======== -->
+  <nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-100">
+    <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+      <a href="#" class="text-lg font-bold text-brand-600 tracking-tight">
+        <span class="text-brand-600">随身</span><span class="text-[#1E293B]">学</span>
+        <span class="ml-1.5 text-sm font-normal text-slate-400">English Commute</span>
+      </a>
+      <div class="hidden sm:flex items-center gap-5 text-sm font-medium text-slate-500">
+        <a href="#features" class="hover:text-slate-800 transition-colors">功能</a>
+        <a href="#scenarios" class="hover:text-slate-800 transition-colors">场景</a>
+        <a href="#faq" class="hover:text-slate-800 transition-colors">常见问题</a>
+        <a href="https://github.com/AiMmj1991/english-commute" target="_blank" class="inline-flex items-center gap-1 hover:text-slate-800 transition-colors">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+          GitHub
+        </a>
+      </div>
+      <a href="javascript:void(0)" onclick="openModal()"
+         class="hidden sm:inline-flex items-center gap-1.5 bg-brand-600 text-white text-sm font-medium px-5 py-2 rounded-full hover:bg-brand-700 transition-colors">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+        下载 App
+      </a>
+    </div>
+  </nav>
+
+  <!-- ======== HERO ======== -->
+  <header class="relative overflow-hidden">
+    <!-- Background gradient -->
+    <div class="absolute inset-0 bg-gradient-to-b from-brand-50/80 via-white to-transparent pointer-events-none"></div>
+    <div class="absolute top-0 right-0 w-96 h-96 bg-brand-100/40 rounded-full blur-3xl translate-x-1/3 -translate-y-1/4"></div>
+
+    <div class="max-w-6xl mx-auto px-6 pt-20 pb-24 md:pt-28 md:pb-32 relative">
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+
+        <!-- Left: Text -->
+        <div class="animate-fade-up">
+          <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold leading-tight tracking-tight">
+            <span class="text-brand-600">学</span>英语，
+            <span class="text-brand-600">听</span>出来
+          </h1>
+          <p class="mt-6 text-lg sm:text-xl text-slate-500 leading-relaxed max-w-lg">
+            通勤路上、做家务时、休闲放空——戴上耳机，用听的就能学英语。
+            不信？<span class="text-brand-600 font-medium">试试就知道了</span>。
+          </p>
+
+          <!-- Hero features -->
+          <div class="mt-8 flex flex-wrap gap-y-3 gap-x-6 text-sm text-slate-500">
+            <span class="inline-flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-accent-green" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              无需看屏幕
+            </span>
+            <span class="inline-flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-accent-green" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              AI 自适应
+            </span>
+            <span class="inline-flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-accent-green" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              离线可用
+            </span>
+            <span class="inline-flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-accent-green" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              科学复习
+            </span>
+          </div>
+
+          <!-- Download buttons (placeholder) -->
+          <div class="mt-8 flex flex-wrap gap-4" id="download">
+            <a href="javascript:void(0)" onclick="openModal()" class="download-btn inline-flex items-center gap-2 bg-[#1E293B] text-white px-6 py-3 rounded-xl font-medium hover:bg-brand-700 transition-all shadow-lg shadow-slate-200">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+              App Store 下载
+            </a>
+            <a href="javascript:void(0)" onclick="openModal()" class="download-btn inline-flex items-center gap-2 bg-[#1E293B] text-white px-6 py-3 rounded-xl font-medium hover:bg-brand-700 transition-all shadow-lg shadow-slate-200">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 01-.61-.92V2.734a1 1 0 01.609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.199l2.807 1.626a1 1 0 010 1.732l-2.807 1.626L15.206 12l2.492-2.492zM5.864 2.658L16.8 8.99l-2.302 2.302-8.634-8.634z"/></svg>
+              安卓应用市场下载
+            </a>
+          </div>
+          <p class="mt-3 text-xs text-slate-400">
+            预计 <strong class="text-slate-500">7 月 28 日</strong> 正式上线 ·
+            <a href="javascript:void(0)" onclick="openModal()" class="text-brand-600 hover:underline">订阅上线通知 →</a>
+          </p>
+        </div>
+
+        <!-- Right: Phone mockup -->
+        <div class="hidden md:flex justify-center animate-fade-up delay-200">
+          <div class="mockup-phone">
+            <div class="mockup-phone-content">
+              <div class="text-center">
+                <div class="w-16 h-16 bg-brand-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <svg class="w-8 h-8 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                  </svg>
+                </div>
+                <p class="text-sm font-medium text-slate-600">滑动卡片学单词</p>
+                <div class="mt-4 space-y-3">
+                  <div class="h-3 bg-brand-100 rounded-full w-3/4 mx-auto"></div>
+                  <div class="h-3 bg-slate-100 rounded-full w-1/2 mx-auto"></div>
+                  <div class="h-3 bg-slate-100 rounded-full w-5/6 mx-auto"></div>
+                </div>
+                <div class="mt-6 flex justify-center gap-2">
+                  <span class="w-2 h-2 rounded-full bg-brand-400"></span>
+                  <span class="w-2 h-2 rounded-full bg-brand-200"></span>
+                  <span class="w-2 h-2 rounded-full bg-brand-200"></span>
+                </div>
+              </div>
+              <div class="mockup-wave"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ======== FEATURES ======== -->
+  <section id="features" class="py-20 md:py-28">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center max-w-2xl mx-auto">
+        <h2 class="text-3xl md:text-4xl font-bold tracking-tight">为什么选择随身学？</h2>
+        <p class="mt-4 text-lg text-slate-500">专为"忙人"设计的沉浸式英语学习体验</p>
+      </div>
+
+      <div class="mt-16 grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <!-- Feature 1: Audio Immersion -->
+        <article class="feature-card bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+          <div class="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold">音频沉浸学习</h3>
+          <p class="mt-2 text-sm text-slate-500 leading-relaxed">
+            无需看屏幕。滑动即播，单词 → 释义 → 例句自动连读。
+            4秒无操作自动跳过，通勤路上闭着眼就能学。
+          </p>
+        </article>
+
+        <!-- Feature 2: AI Adaptive -->
+        <article class="feature-card bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+          <div class="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold">AI 自适应</h3>
+          <p class="mt-2 text-sm text-slate-500 leading-relaxed">
+            DeepSeek 驱动，根据你的学习数据自动推荐语速、调整复习节奏。
+            越学越懂你，每个人都有自己的学习曲线。
+          </p>
+        </article>
+
+        <!-- Feature 3: SM-2 Spaced Repetition -->
+        <article class="feature-card bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+          <div class="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold">SM-2 科学复习</h3>
+          <p class="mt-2 text-sm text-slate-500 leading-relaxed">
+            基于 SuperMemo 算法的间隔重复系统。在遗忘临界点精准提醒，
+            让每个单词在最佳时机进入长期记忆。
+          </p>
+        </article>
+
+        <!-- Feature 4: Offline-first -->
+        <article class="feature-card bg-white rounded-2xl p-6 border border-slate-100 shadow-sm">
+          <div class="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center mb-4">
+            <svg class="w-6 h-6 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"/>
+            </svg>
+          </div>
+          <h3 class="text-lg font-semibold">离线优先</h3>
+          <p class="mt-2 text-sm text-slate-500 leading-relaxed">
+            本地数据库 + 云端同步。地铁里没信号？飞机上开飞行模式？
+            随时学，数据不丢失，连网后自动同步。
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======== SCENARIOS ======== -->
+  <section id="scenarios" class="py-20 md:py-28 bg-white">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center max-w-2xl mx-auto">
+        <h2 class="text-3xl md:text-4xl font-bold tracking-tight">随时随地，想听就听</h2>
+        <p class="mt-4 text-lg text-slate-500">总有一个场景适合你</p>
+      </div>
+
+      <div class="mt-12 grid md:grid-cols-3 gap-8">
+        <!-- Scenario 1: Commute -->
+        <article class="scenario-card bg-[#F8FAFC] rounded-2xl p-8 border border-slate-100">
+          <div class="w-14 h-14 bg-brand-50 rounded-xl flex items-center justify-center mb-5">
+            <svg class="w-7 h-7 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold">🚇 通勤路上</h3>
+          <p class="mt-3 text-slate-500 leading-relaxed">
+            地铁、公交、打车——每天30-60分钟的通勤时间，
+            以前刷短视频浪费掉，现在戴上耳机就能背完10个新单词 + 复习20个旧词。
+            下车时，今天的英语任务已经完成。
+          </p>
+        </article>
+
+        <!-- Scenario 2: Driving -->
+        <article class="scenario-card bg-[#F8FAFC] rounded-2xl p-8 border border-slate-100">
+          <div class="w-14 h-14 bg-brand-50 rounded-xl flex items-center justify-center mb-5">
+            <svg class="w-7 h-7 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold">🚗 开车途中</h3>
+          <p class="mt-3 text-slate-500 leading-relaxed">
+            全程语音操控，零屏幕交互。单词朗读、例句播放、中英文释义全部
+            通过 TTS 语音播报。右手握方向盘，左手滑一下，安全又高效。
+          </p>
+        </article>
+
+        <!-- Scenario 3: Leisure -->
+        <article class="scenario-card bg-[#F8FAFC] rounded-2xl p-8 border border-slate-100">
+          <div class="w-14 h-14 bg-brand-50 rounded-xl flex items-center justify-center mb-5">
+            <svg class="w-7 h-7 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-semibold">🏠 休闲时刻</h3>
+          <p class="mt-3 text-slate-500 leading-relaxed">
+            做家务、健身、散步、睡前放松——不需要专门腾出时间"学英语"，
+            把英语融入生活背景音。听 AI 生成的情景对话，做听力理解题，
+            不知不觉语感就上来了。
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======== APP PREVIEW / MOCKUP ======== -->
+  <section id="preview" class="py-20 md:py-28">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-2 gap-12 items-center">
+        <div>
+          <h2 class="text-3xl md:text-4xl font-bold tracking-tight">
+            看一眼就懂的<br class="hidden sm:block" />
+            学习体验
+          </h2>
+          <p class="mt-4 text-lg text-slate-500 leading-relaxed">
+            简洁的滑动卡片设计，左滑认识、右滑忘记，操作直觉。
+            专注模式屏蔽视觉干扰，让你真正沉浸在英语声音中。
+          </p>
+          <ul class="mt-6 space-y-3">
+            <li class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-accent-green mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              <span class="text-slate-600"><strong class="text-slate-800">滑动学习</strong> — 右滑认识 / 左滑不认识，自动记录</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-accent-green mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              <span class="text-slate-600"><strong class="text-slate-800">AI 例句</strong> — 一键生成贴近生活的实用例句和语法讲解</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-accent-green mt-0.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/></svg>
+              <span class="text-slate-600"><strong class="text-slate-800">学习统计</strong> — 连续打卡、热力图、AI 学习建议</span>
+            </li>
+          </ul>
+        </div>
+        <div class="flex justify-center">
+          <!-- Phone mockup 2 -->
+          <div class="mockup-phone scale-90 md:scale-100 origin-center">
+            <div class="mockup-phone-content">
+              <div class="text-center w-full">
+                <!-- App header -->
+                <div class="flex items-center gap-2 mb-6">
+                  <span class="w-6 h-6 bg-brand-600 rounded-lg"></span>
+                  <span class="text-xs font-semibold text-slate-800">随身学</span>
+                </div>
+                <!-- Word card -->
+                <div class="bg-brand-50 rounded-xl p-4 text-center">
+                  <p class="text-2xl font-bold text-brand-700">abandon</p>
+                  <p class="text-xs text-slate-400 mt-1">/əˈbændən/</p>
+                  <p class="text-sm text-slate-700 mt-3">v. 放弃，遗弃</p>
+                  <p class="text-xs text-slate-400 mt-3 leading-relaxed">"He had to abandon the project due to lack of funding."</p>
+                </div>
+                <!-- Swipe hint -->
+                <div class="mt-6 flex justify-center gap-8 text-xs text-slate-400">
+                  <span class="flex items-center gap-1">👈 不认识</span>
+                  <span class="flex items-center gap-1">认识 👉</span>
+                </div>
+                <!-- Progress dots -->
+                <div class="mt-6 flex justify-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-brand-400"></span>
+                  <span class="w-2 h-2 rounded-full bg-brand-300"></span>
+                  <span class="w-2 h-2 rounded-full bg-slate-200"></span>
+                  <span class="w-2 h-2 rounded-full bg-slate-200"></span>
+                  <span class="w-2 h-2 rounded-full bg-slate-200"></span>
+                </div>
+              </div>
+              <div class="mockup-wave"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======== TRUST / STATS ======== -->
+  <section id="trust" class="py-20 md:py-28 bg-white border-y border-slate-100">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-8 text-center">
+        <div>
+          <p class="text-4xl font-bold text-brand-600">AI</p>
+          <p class="mt-1 text-sm text-slate-500">DeepSeek 驱动</p>
+        </div>
+        <div>
+          <p class="text-4xl font-bold text-brand-600">100%</p>
+          <p class="mt-1 text-sm text-slate-500">离线可用</p>
+        </div>
+        <div>
+          <p class="text-4xl font-bold text-brand-600">SM-2</p>
+          <p class="mt-1 text-sm text-slate-500">科学复习算法</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======== TECH STACK ======== -->
+  <section id="tech" class="py-20 md:py-28">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="text-center max-w-2xl mx-auto">
+        <h2 class="text-2xl md:text-3xl font-bold tracking-tight">技术栈</h2>
+        <p class="mt-3 text-slate-500">专业工具，构建可靠产品</p>
+      </div>
+      <div class="mt-10 flex flex-wrap justify-center gap-4">
+        <span class="inline-flex items-center gap-2 bg-white border border-slate-200 rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+          Flutter
+        </span>
+        <span class="inline-flex items-center gap-2 bg-white border border-slate-200 rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+          Dart
+        </span>
+        <span class="inline-flex items-center gap-2 bg-white border border-slate-200 rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+          Riverpod
+        </span>
+        <span class="inline-flex items-center gap-2 bg-white border border-slate-200 rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+          Drift (SQLite)
+        </span>
+        <span class="inline-flex items-center gap-2 bg-white border border-slate-200 rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+          Supabase
+        </span>
+        <span class="inline-flex items-center gap-2 bg-white border border-slate-200 rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+          DeepSeek AI
+        </span>
+        <span class="inline-flex items-center gap-2 bg-white border border-slate-200 rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+          GoRouter
+        </span>
+        <span class="inline-flex items-center gap-2 bg-white border border-slate-200 rounded-full px-5 py-2.5 text-sm font-medium text-slate-700 shadow-sm">
+          <span class="w-2 h-2 rounded-full bg-brand-500"></span>
+          flutter_tts
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======== DOWNLOAD CTA ======== -->
+  <section id="download-cta" class="py-20 md:py-28 bg-gradient-to-b from-brand-600 to-brand-800 text-white">
+    <div class="max-w-4xl mx-auto px-6 text-center">
+      <h2 class="text-3xl md:text-4xl font-bold tracking-tight">通勤学英语，就等这一天</h2>
+      <p class="mt-4 text-lg text-brand-100 max-w-xl mx-auto">
+        随身学正在最后打磨，<strong class="text-white">7 月 28 日</strong> 正式上线。<br>
+        订阅通知，第一时间获取下载链接。
+      </p>
+      <div class="mt-10 flex flex-wrap justify-center gap-4">
+        <a href="javascript:void(0)" onclick="openModal()" class="download-btn inline-flex items-center gap-2.5 bg-white text-brand-700 px-7 py-3.5 rounded-xl font-semibold shadow-xl hover:bg-brand-50 transition-all">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+          App Store 下载
+        </a>
+        <a href="javascript:void(0)" onclick="openModal()" class="download-btn inline-flex items-center gap-2.5 bg-white text-brand-700 px-7 py-3.5 rounded-xl font-semibold shadow-xl hover:bg-brand-50 transition-all">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M3.609 1.814L13.792 12 3.61 22.186a.996.996 0 01-.61-.92V2.734a1 1 0 01.609-.92zm10.89 10.893l2.302 2.302-10.937 6.333 8.635-8.635zm3.199-3.199l2.807 1.626a1 1 0 010 1.732l-2.807 1.626L15.206 12l2.492-2.492zM5.864 2.658L16.8 8.99l-2.302 2.302-8.634-8.634z"/></svg>
+          安卓应用市场下载
+        </a>
+      </div>
+      <p class="mt-4 text-sm text-brand-200">预计 <strong>7 月 28 日</strong> 正式上线</p>
+    </div>
+  </section>
+
+  <!-- ======== FAQ ======== -->
+  <section id="faq" class="py-20 md:py-28 bg-white" itemscope itemtype="https://schema.org/FAQPage">
+    <div class="max-w-3xl mx-auto px-6">
+      <div class="text-center mb-14">
+        <h2 class="text-3xl md:text-4xl font-bold tracking-tight">常见问题</h2>
+      </div>
+
+      <div class="space-y-3">
+        <details class="faq-item bg-[#F8FAFC] rounded-xl p-5 border border-slate-100 group" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+          <summary class="flex items-center justify-between font-medium text-slate-800">
+            <span itemprop="name">随身学和普通背单词 App 有什么区别？</span>
+            <svg class="faq-arrow w-5 h-5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <div class="mt-3 text-sm text-slate-500 leading-relaxed" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+            <div itemprop="text">
+              <p>最大的区别是 <strong>「音频沉浸」</strong> 和 <strong>「零屏幕」</strong>。传统背单词 App 需要盯着屏幕看，而随身学全程通过语音播放单词、释义和例句，你只需要滑动卡片表示"认识"或"不认识"，甚至可以不看手机。配合 AI 自适应调速和 SM-2 复习算法，尤其适合通勤、开车、健身等不方便看屏幕的场景。</p>
+            </div>
+          </div>
+        </details>
+
+        <details class="faq-item bg-[#F8FAFC] rounded-xl p-5 border border-slate-100 group" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+          <summary class="flex items-center justify-between font-medium text-slate-800">
+            <span itemprop="name">完全免费吗？有内购吗？</span>
+            <svg class="faq-arrow w-5 h-5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <div class="mt-3 text-sm text-slate-500 leading-relaxed" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+            <div itemprop="text">
+              <p>核心功能完全免费，包括每日单词学习、SM-2 复习、学习统计等。未来可能会推出付费增值功能（如 AI 深度分析报告、自定义词库导出等），但免费版已经可以满足日常学习需求。</p>
+            </div>
+          </div>
+        </details>
+
+        <details class="faq-item bg-[#F8FAFC] rounded-xl p-5 border border-slate-100 group" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+          <summary class="flex items-center justify-between font-medium text-slate-800">
+            <span itemprop="name">没有网络可以用吗？</span>
+            <svg class="faq-arrow w-5 h-5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <div class="mt-3 text-sm text-slate-500 leading-relaxed" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+            <div itemprop="text">
+              <p>可以。随身学采用离线优先设计，词库和学习记录存储在本地数据库中。在地铁、飞机等无网络环境下也可以正常学习，联网后自动与云端同步数据。不过 AI 生成的例句和听力对话等功能需要联网使用。</p>
+            </div>
+          </div>
+        </details>
+
+        <details class="faq-item bg-[#F8FAFC] rounded-xl p-5 border border-slate-100 group" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+          <summary class="flex items-center justify-between font-medium text-slate-800">
+            <span itemprop="name">词库有哪些？可以自己添加单词吗？</span>
+            <svg class="faq-arrow w-5 h-5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <div class="mt-3 text-sm text-slate-500 leading-relaxed" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+            <div itemprop="text">
+              <p>内置 CET-4（大学英语四级）核心词汇。同时支持 AI 生成自定义词库——输入你感兴趣的主题（如"职场英语""科技英语""旅游英语"），AI 会自动生成配套词库。也可以手动添加自己想学的单词。</p>
+            </div>
+          </div>
+        </details>
+
+        <details class="faq-item bg-[#F8FAFC] rounded-xl p-5 border border-slate-100 group" itemscope itemprop="mainEntity" itemtype="https://schema.org/Question">
+          <summary class="flex items-center justify-between font-medium text-slate-800">
+            <span itemprop="name">我英语基础很差，能用吗？</span>
+            <svg class="faq-arrow w-5 h-5 text-slate-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </summary>
+          <div class="mt-3 text-sm text-slate-500 leading-relaxed" itemscope itemprop="acceptedAnswer" itemtype="https://schema.org/Answer">
+            <div itemprop="text">
+              <p>完全可以。随身学从 CET-4 核心词汇开始，单词配有中文释义和例句。每个单词都会读出中文释义，零基础也能跟上。AI 会自适应你的学习速度，从慢速开始，随着你的进步逐渐调整。</p>
+            </div>
+          </div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======== CONTACT / 联系我 ======== -->
+  <section id="contact" class="py-20 md:py-28">
+    <div class="max-w-4xl mx-auto px-6">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl md:text-4xl font-bold tracking-tight">联系我</h2>
+        <p class="mt-4 text-lg text-slate-500">功能建议、合作咨询、使用问题 — 直接联系</p>
+      </div>
+
+      <div class="grid md:grid-cols-3 gap-6 max-w-3xl mx-auto">
+        <div class="bg-white rounded-2xl p-8 border border-slate-100 shadow-sm text-center hover:shadow-md transition-shadow">
+          <div class="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <svg class="w-6 h-6 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-slate-800">邮件</h3>
+          <p class="mt-2">
+            <a href="mailto:244202922@qq.com" class="text-brand-600 hover:underline text-sm">244202922@qq.com</a>
+          </p>
+          <p class="mt-1 text-xs text-slate-400">工作日 24h 内回复</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-8 border border-slate-100 shadow-sm text-center hover:shadow-md transition-shadow">
+          <div class="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <svg class="w-6 h-6 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-slate-800">GitHub Issues</h3>
+          <p class="mt-2">
+            <a href="https://github.com/AiMmj1991/english-commute/issues" target="_blank" class="text-brand-600 hover:underline text-sm">提交 Issue →</a>
+          </p>
+          <p class="mt-1 text-xs text-slate-400">反馈 Bug 或功能建议</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-8 border border-slate-100 shadow-sm text-center hover:shadow-md transition-shadow">
+          <div class="w-12 h-12 bg-brand-50 rounded-xl flex items-center justify-center mx-auto mb-4">
+            <svg class="w-6 h-6 text-brand-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/>
+            </svg>
+          </div>
+          <h3 class="font-semibold text-slate-800">上线通知</h3>
+          <p class="mt-2">
+            <a href="mailto:244202922@qq.com?subject=上线通知请求&body=请在上线时通知我，我的联系方式是：" class="text-brand-600 hover:underline text-sm">邮件订阅 →</a>
+          </p>
+          <p class="mt-1 text-xs text-slate-400">7 月 28 日上线后第一时间通知你</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======== FOOTER ======== -->
+  <footer class="bg-[#1E293B] text-slate-400 py-12">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+        <div>
+          <p class="text-white font-bold text-lg">
+            <span class="text-brand-400">随身</span>学
+          </p>
+          <p class="text-sm mt-1">English Commute · 学英语，听出来</p>
+        </div>
+        <div class="flex items-center gap-6 text-sm">
+          <a href="https://github.com/AiMmj1991/english-commute" target="_blank" class="hover:text-white transition-colors">GitHub</a>
+          <span class="w-px h-4 bg-slate-600"></span>
+          <a href="/llms.txt" class="hover:text-white transition-colors">llms.txt</a>
+          <span class="w-px h-4 bg-slate-600 hidden sm:block"></span>
+          <a href="mailto:244202922@qq.com" class="hover:text-white transition-colors">联系我们</a>
+        </div>
+      </div>
+      <hr class="border-slate-700 my-8" />
+      <p class="text-center text-xs text-slate-500">
+        &copy; 2026 随身学团队 · Built with Flutter · Powered by DeepSeek &amp; Supabase
+      </p>
+    </div>
+  </footer>
+
+  <!-- ======== MODAL: 上线通知 ======== -->
+  <div class="modal-overlay" id="launchModal" onclick="if(event.target===this) closeModal()">
+    <div class="modal-box">
+      <span class="modal-countdown">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        即将上线
+      </span>
+      <div class="modal-date">7 月 <em>28</em> 日</div>
+      <p class="mt-3 text-sm text-slate-500 leading-relaxed">
+        随身学 App 正在最后打磨中，<br>
+        预计 <strong class="text-slate-700">7 月 28 日</strong> 正式发布。<br>
+        届时可在 App Store 和安卓应用市场搜索下载。
+      </p>
+      <div class="mt-6 flex flex-col gap-3">
+        <a href="mailto:244202922@qq.com?subject=上线通知请求&body=请在上线时通知我，我的联系方式是："
+           class="inline-flex items-center justify-center gap-2 bg-brand-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-brand-700 transition-all shadow-md">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          邮箱订阅上线通知
+        </a>
+        <button onclick="closeModal()" class="text-sm text-slate-400 hover:text-slate-600 transition-colors cursor-pointer">
+          知道了，稍后再来
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll-triggered animation + Modal JS -->
+  <script>
+    function openModal() {
+      document.getElementById('launchModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeModal() {
+      document.getElementById('launchModal').classList.remove('active');
+      document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('animate-fade-up');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('section, header').forEach(el => {
+      if (!el.classList.contains('animate-fade-up')) {
+        observer.observe(el);
+      }
+    });
+  </script>
+</body>
+</html>
